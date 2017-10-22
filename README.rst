@@ -51,7 +51,9 @@ Alternatively, if you do not control the construction of the ``Http`` object, yo
     # service.http is now a httplib2shim.Http object.
 
 If you want to use socks proxy support you need install PySocks:
+
 .. code:: bash
+
     pip install PySocks
 
 Example:
