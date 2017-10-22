@@ -29,6 +29,8 @@ import warnings
 import certifi
 import httplib2
 import urllib3
+from urllib3.contrib.socks import SOCKSProxyManager
+import socks
 
 
 def _default_make_pool(http, proxy_info):
@@ -45,6 +47,27 @@ def _default_make_pool(http, proxy_info):
     if isinstance(proxy_info, collections.Callable):
         proxy_info = proxy_info()
     if proxy_info:
+        if proxy_info.proxy_type == socks.PROXY_TYPE_SOCKS4 or proxy_info.proxy_type == socks.PROXY_TYPE_SOCKS5:
+            if proxy_info.proxy_type == socks.PROXY_TYPE_SOCKS4:
+                proxy_scheme = 'socks4'
+            else:
+                proxy_scheme = 'socks5'
+
+            proxy_url = '{}://{}:{}'.format(
+                proxy_scheme,
+                proxy_info.proxy_host,
+                proxy_info.proxy_port
+            )
+
+            username = proxy_info.proxy_user if proxy_info.proxy_user else None
+            password = proxy_info.proxy_pass if proxy_info.proxy_pass else None
+            headers = proxy_info.proxy_headers if proxy_info.proxy_headers else None
+            return SOCKSProxyManager(proxy_url=proxy_url,
+                                     username=username,
+                                     password=password,
+                                     headers=headers,
+                                     ca_certs=http.ca_certs,
+                                     cert_reqs=cert_reqs)
         if proxy_info.proxy_user and proxy_info.proxy_pass:
             proxy_url = 'http://{}:{}@{}:{}/'.format(
                 proxy_info.proxy_user, proxy_info.proxy_pass,
