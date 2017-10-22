@@ -50,6 +50,34 @@ Alternatively, if you do not control the construction of the ``Http`` object, yo
 
     # service.http is now a httplib2shim.Http object.
 
+If you want to use socks proxy support you need install PySocks:
+.. code:: bash
+    pip install PySocks
+
+Example:
+
+.. code:: python
+    
+    import httplib2
+    import httplib2shim
+    import socks
+    from oauth2client.client import GoogleCredentials
+    
+    proxy_info = httplib2.ProxyInfo(
+        proxy_type=socks.PROXY_TYPE_SOCKS5,
+        proxy_host='0.0.0.0',
+        proxy_port='1080',
+        proxy_user='username',
+        proxy_pass='password'
+    )
+
+    credentials = GoogleCredentials.get_application_default()
+    http = httplib2shim.Http(proxy_info=proxy_info)
+    credentials.authorize(http)
+
+    # http is now authorized with OAuth2 credentials and uses urllib3 under
+    # the covers.
+
 Unsupported Features
 --------------------
 
